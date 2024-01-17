@@ -20,7 +20,7 @@ type VehicleMap struct {
 
 // getLastId is a method that returns the last id of the db
 func (r *VehicleMap) getLastId() (id int) {
-	for key, _ := range r.db {
+	for key := range r.db {
 		if key > id {
 			id = key
 		}
