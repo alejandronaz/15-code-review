@@ -18,6 +18,16 @@ type VehicleMap struct {
 	db map[int]internal.Vehicle
 }
 
+// getLastId is a method that returns the last id of the db
+func (r *VehicleMap) getLastId() (id int) {
+	for key, _ := range r.db {
+		if key > id {
+			id = key
+		}
+	}
+	return
+}
+
 // FindAll is a method that returns a map of all vehicles
 func (r *VehicleMap) FindAll() (v map[int]internal.Vehicle, err error) {
 	v = make(map[int]internal.Vehicle)
@@ -27,5 +37,19 @@ func (r *VehicleMap) FindAll() (v map[int]internal.Vehicle, err error) {
 		v[key] = value
 	}
 
+	return
+}
+
+// Add is a method that adds a new vehicle to the db
+func (r *VehicleMap) Add(newVehicle internal.Vehicle) (v internal.Vehicle, err error) {
+	// get the last id
+	lastId := r.getLastId()
+	id := lastId + 1
+
+	// add vehicle
+	newVehicle.Id = id
+	r.db[id] = newVehicle
+
+	v = r.db[id]
 	return
 }
