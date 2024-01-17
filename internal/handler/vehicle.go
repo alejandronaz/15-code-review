@@ -238,6 +238,7 @@ func (h *VehicleDefault) FindByColorAndYear(w http.ResponseWriter, r *http.Reque
 
 }
 
+// Update updates an existent vehicle
 func (h *VehicleDefault) Update(w http.ResponseWriter, r *http.Request) {
 
 	// get id from path param
