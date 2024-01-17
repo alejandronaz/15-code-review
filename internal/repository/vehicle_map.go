@@ -42,6 +42,14 @@ func (r *VehicleMap) FindAll() (v map[int]internal.Vehicle, err error) {
 
 // Add is a method that adds a new vehicle to the db
 func (r *VehicleMap) Add(newVehicle internal.Vehicle) (v internal.Vehicle, err error) {
+
+	// check if registration already exists
+	for _, v := range r.db {
+		if v.Registration == newVehicle.Registration {
+			return v, internal.ErrVehicleExistent
+		}
+	}
+
 	// get the last id
 	lastId := r.getLastId()
 	id := lastId + 1

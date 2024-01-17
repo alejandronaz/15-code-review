@@ -144,6 +144,14 @@ func (h *VehicleDefault) Add(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		if errors.Is(err, internal.ErrVehicleExistent) {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(ResponseJSON{
+				Message: "Identificador del vehículo ya existente.",
+			})
+			return
+		}
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(ResponseJSON{
