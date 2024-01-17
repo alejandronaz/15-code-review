@@ -38,3 +38,10 @@ func (s *VehicleDefault) Add(newVehicle internal.Vehicle) (v internal.Vehicle, e
 
 	return
 }
+
+// FindAllEqualTo returns a map of vehicles that passed the filters
+func (s *VehicleDefault) FindAllEqualTo(filter internal.EqualFilter) (v map[int]internal.Vehicle, err error) {
+	// call the repo
+	v, err = s.rp.FindAllEqualTo(filter)
+	return
+}

@@ -10,6 +10,8 @@ type VehicleService interface {
 	FindAll() (v map[int]Vehicle, err error)
 	// Add adds a new vehicle to the repo
 	Add(newVehicle Vehicle) (v Vehicle, err error)
+	// FindAllEqualTo returns a map of vehicles that passed the filters
+	FindAllEqualTo(filter EqualFilter) (v map[int]Vehicle, err error)
 
 	// New methods
 

@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
 )
 
 // NewVehicleDefault is a function that returns a new instance of VehicleDefault
@@ -160,6 +162,67 @@ func (h *VehicleDefault) Add(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(ResponseJSON{
 		Message: "Vehiculo añadido",
 		Data:    data,
+	})
+
+}
+
+// FindByColorAndYear returns the list of Vehicles that has that color and year
+func (h *VehicleDefault) FindByColorAndYear(w http.ResponseWriter, r *http.Request) {
+
+	// get the path params
+	color := chi.URLParam(r, "color")
+	year := chi.URLParam(r, "year")
+
+	// parse year to int
+	yearInt, err := strconv.Atoi(year)
+	if err != nil {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "Año invalido",
+		})
+		return
+	}
+
+	// call the service
+	vehiclesMap, err := h.sv.FindAllEqualTo(internal.EqualFilter{
+		Color:           color,
+		FabricationYear: yearInt,
+	})
+	if err != nil {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "Hubo un error interno en el servidor",
+		})
+		return
+	}
+
+	// parse map to slice of VehicleResponseJSON
+	vehicles := []VehicleResponseJSON{}
+	for _, v := range vehiclesMap {
+		// parse model to VehicleResponseJSON
+		var vehicleResponse = VehicleResponseJSON{}
+		vehicleResponse.parseModelToResponse(v)
+		// add to slice
+		vehicles = append(vehicles, vehicleResponse)
+	}
+
+	if len(vehicles) == 0 {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "No se encontraron vehiculos con esos criterios",
+		})
+		return
+	}
+
+	// response
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(ResponseJSON{
+		Message: "success",
+		Data:    vehicles,
 	})
 
 }
