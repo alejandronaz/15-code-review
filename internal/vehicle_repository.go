@@ -10,6 +10,8 @@ type VehicleRepository interface {
 	Add(newVehicle Vehicle) (v Vehicle, err error)
 	// FindAllEqualTo returns a map of vehicles that passed the filters
 	FindAllEqualTo(filter EqualFilter) (v map[int]Vehicle, err error)
+	// Update updates an existent vehicle
+	Update(vehicle Vehicle) (v Vehicle, err error)
 
 	// New methods
 
@@ -44,5 +46,6 @@ type EqualFilter struct {
 
 // errors definition
 var (
-	ErrVehicleExistent = errors.New("vehicle id already exists")
+	ErrVehicleExistent = errors.New("vehicle registration already exists")
+	ErrVehicleNotFound = errors.New("vehicle not found")
 )

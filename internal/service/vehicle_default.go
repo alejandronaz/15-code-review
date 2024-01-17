@@ -45,3 +45,22 @@ func (s *VehicleDefault) FindAllEqualTo(filter internal.EqualFilter) (v map[int]
 	v, err = s.rp.FindAllEqualTo(filter)
 	return
 }
+
+// Update updates an existent vehicle
+func (s *VehicleDefault) Update(vehicle internal.Vehicle) (v internal.Vehicle, err error) {
+	// check if the fabrication year is valid
+	if vehicle.FabricationYear < 1886 {
+		return v, &internal.ErrInvalidAttributes{Attr: "FabricationYear"}
+	}
+
+	// some others validations
+	// ...
+
+	// call the repo
+	v, err = s.rp.Update(vehicle)
+	if err != nil {
+		return v, err
+	}
+
+	return
+}

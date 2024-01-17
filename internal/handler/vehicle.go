@@ -134,6 +134,7 @@ func (h *VehicleDefault) Add(w http.ResponseWriter, r *http.Request) {
 	// call service
 	vehicle, err = h.sv.Add(vehicle)
 	if err != nil {
+
 		var target *internal.ErrInvalidAttributes
 		if errors.As(err, &target) {
 			errInv := err.(*internal.ErrInvalidAttributes)
@@ -144,6 +145,7 @@ func (h *VehicleDefault) Add(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+
 		if errors.Is(err, internal.ErrVehicleExistent) {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusConflict)
@@ -152,6 +154,7 @@ func (h *VehicleDefault) Add(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(ResponseJSON{
@@ -233,4 +236,122 @@ func (h *VehicleDefault) FindByColorAndYear(w http.ResponseWriter, r *http.Reque
 		Data:    vehicles,
 	})
 
+}
+
+func (h *VehicleDefault) Update(w http.ResponseWriter, r *http.Request) {
+
+	// get id from path param
+	id := chi.URLParam(r, "id")
+
+	// parse id to int
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "Año invalido",
+		})
+		return
+	}
+
+	// get the bytes of body
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "Datos del vehículo mal formados",
+		})
+		return
+	}
+
+	// deserialize to a map
+	bodyMap := make(map[string]any)
+	if err := json.Unmarshal(bodyBytes, &bodyMap); err != nil {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "Datos del vehículo mal formados",
+		})
+		return
+	}
+
+	// validate if all fields are present
+	validFields := utilities.ValidateFields(bodyMap, "brand", "model", "registration", "color", "year", "passengers", "max_speed", "fuel_type", "transmission", "weight", "height", "length", "width")
+	if !validFields {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "Datos del vehículo incompletos",
+		})
+		return
+	}
+
+	// deserialize to a VehicleRequestJSON
+	var vehicleReq VehicleRequestJSON
+	if err := json.Unmarshal(bodyBytes, &vehicleReq); err != nil {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "Datos del vehículo mal formados",
+		})
+		return
+	}
+
+	// parse VehicleRequestJSON to model
+	var vehicle internal.Vehicle = vehicleReq.parseRequestToModel()
+	vehicle.Id = idInt
+
+	// call service
+	vehicle, err = h.sv.Update(vehicle)
+	if err != nil {
+
+		var target *internal.ErrInvalidAttributes
+		if errors.As(err, &target) {
+			errInv := err.(*internal.ErrInvalidAttributes)
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(ResponseJSON{
+				Message: fmt.Sprintf("El atributo %s es invalido", errInv.Attr),
+			})
+			return
+		}
+
+		if errors.Is(err, internal.ErrVehicleNotFound) {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(ResponseJSON{
+				Message: "No se encontro el vehiculo.",
+			})
+			return
+		}
+
+		if errors.Is(err, internal.ErrVehicleExistent) {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(ResponseJSON{
+				Message: "Identificador del vehículo pertenece a otro vehiculo.",
+			})
+			return
+		}
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "No se pudo actualizar el vehiculo",
+		})
+		return
+	}
+
+	// parse model to response
+	var vehicleJSON = VehicleResponseJSON{}
+	vehicleJSON.parseModelToResponse(vehicle)
+
+	// response
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(ResponseJSON{
+		Message: "success",
+		Data:    vehicleJSON,
+	})
 }

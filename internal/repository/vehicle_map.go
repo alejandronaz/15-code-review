@@ -134,3 +134,38 @@ func (r *VehicleMap) FindAllEqualTo(filter internal.EqualFilter) (v map[int]inte
 	return v, nil
 
 }
+
+func (r *VehicleMap) Update(vehicle internal.Vehicle) (v internal.Vehicle, err error) {
+
+	// get the vehicle
+	v, ok := r.db[vehicle.Id]
+	if !ok {
+		return v, internal.ErrVehicleNotFound
+	}
+
+	// check if registration already exists
+	for _, v := range r.db {
+		if v.Id != vehicle.Id && v.Registration == vehicle.Registration {
+			return v, internal.ErrVehicleExistent
+		}
+	}
+
+	// update
+	v.Brand = vehicle.Brand
+	v.Model = vehicle.Model
+	v.Registration = vehicle.Registration
+	v.Color = vehicle.Color
+	v.FabricationYear = vehicle.FabricationYear
+	v.Capacity = vehicle.Capacity
+	v.MaxSpeed = vehicle.MaxSpeed
+	v.FuelType = vehicle.FuelType
+	v.Transmission = vehicle.Transmission
+	v.Weight = vehicle.Weight
+	v.Height = vehicle.Height
+	v.Length = vehicle.Length
+	v.Width = vehicle.Width
+
+	r.db[vehicle.Id] = v
+
+	return v, nil
+}

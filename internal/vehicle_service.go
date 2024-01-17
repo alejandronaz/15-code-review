@@ -12,6 +12,8 @@ type VehicleService interface {
 	Add(newVehicle Vehicle) (v Vehicle, err error)
 	// FindAllEqualTo returns a map of vehicles that passed the filters
 	FindAllEqualTo(filter EqualFilter) (v map[int]Vehicle, err error)
+	// Update updates an existent vehicle
+	Update(vehicle Vehicle) (v Vehicle, err error)
 
 	// New methods
 
