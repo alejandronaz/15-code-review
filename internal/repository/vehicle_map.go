@@ -69,7 +69,6 @@ func (r *VehicleMap) FindAllEqualTo(filter internal.EqualFilter) (v map[int]inte
 
 	/* All of this can be improved using reflect and saving the non-empty fields into a map */
 	for key, value := range r.db {
-
 		// if the field is not zero value is because i want to filter using this field
 
 		/* Esto se lee como: si quiero filtrar por este campo, pero el vehiculo no cumple, continuo */

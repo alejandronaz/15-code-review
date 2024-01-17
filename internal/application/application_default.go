@@ -78,6 +78,8 @@ func (a *ServerChi) Run() (err error) {
 		rt.Get("/color/{color}/year/{year}", hd.FindByColorAndYear)
 		// - PUT /vehicles/{id}
 		rt.Put("/{id}", hd.Update)
+		// - GET /vehicles/average_capacity/brand/{brand}
+		rt.Get("/average_capacity/brand/{brand}", hd.GetAvgCapacity)
 	})
 
 	// run server

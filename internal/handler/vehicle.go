@@ -356,3 +356,37 @@ func (h *VehicleDefault) Update(w http.ResponseWriter, r *http.Request) {
 		Data:    vehicleJSON,
 	})
 }
+
+func (h *VehicleDefault) GetAvgCapacity(w http.ResponseWriter, r *http.Request) {
+
+	// get brand from path param
+	brand := chi.URLParam(r, "brand")
+
+	// call the service
+	avg, err := h.sv.GetAvgCapacity(brand)
+	if err != nil {
+		if errors.Is(err, internal.ErrVehiclesNotFound) {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(ResponseJSON{
+				Message: "No se encontraron vehículos de esa marca.",
+			})
+			return
+		}
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(ResponseJSON{
+			Message: "Hubo un problema al buscar los vehiculos.",
+		})
+		return
+	}
+
+	// response
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(ResponseJSON{
+		Message: "success",
+		Data:    avg,
+	})
+
+}

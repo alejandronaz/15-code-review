@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -16,7 +17,8 @@ type VehicleService interface {
 	Update(vehicle Vehicle) (v Vehicle, err error)
 
 	// New methods
-
+	// GetAvgCapacity returns the avg of the brands capacity
+	GetAvgCapacity(brand string) (avg float64, err error)
 }
 
 // errors definition
@@ -27,3 +29,7 @@ type ErrInvalidAttributes struct {
 func (e *ErrInvalidAttributes) Error() string {
 	return fmt.Sprintf("atrribute %s is invalid", e.Attr)
 }
+
+var (
+	ErrVehiclesNotFound = errors.New("vehicles not found")
+)

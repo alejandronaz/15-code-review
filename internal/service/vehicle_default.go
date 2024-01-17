@@ -64,3 +64,26 @@ func (s *VehicleDefault) Update(vehicle internal.Vehicle) (v internal.Vehicle, e
 
 	return
 }
+
+func (s *VehicleDefault) GetAvgCapacity(brand string) (avg float64, err error) {
+	// call the repo
+	brandVehicles, err := s.rp.FindAllEqualTo(internal.EqualFilter{
+		Brand: brand,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	// if there are not vehicles, return error
+	if len(brandVehicles) == 0 {
+		return 0, internal.ErrVehiclesNotFound
+	}
+
+	totalCapacity := 0.0
+	for _, value := range brandVehicles {
+		totalCapacity += float64(value.Capacity)
+	}
+
+	avg = totalCapacity / float64(len(brandVehicles))
+	return
+}
