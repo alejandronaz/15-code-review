@@ -93,6 +93,32 @@ func (r *VehicleMap) FindAllEqualTo(filter internal.EqualFilter) (v map[int]inte
 			continue
 		}
 
+		// filters by range
+
+		if filter.FabricationYearRange[0] != 0 && filter.FabricationYearRange[1] != 0 &&
+			// is out of range
+			(value.FabricationYear < filter.FabricationYearRange[0] || value.FabricationYear > filter.FabricationYearRange[1]) {
+			continue
+		}
+
+		if filter.LengthRange[0] != 0 && filter.LengthRange[1] != 0 &&
+			// is out of range
+			(value.Length < filter.LengthRange[0] || value.Length > filter.LengthRange[1]) {
+			continue
+		}
+
+		if filter.WidthRange[0] != 0 && filter.WidthRange[1] != 0 &&
+			// is out of range
+			(value.Width < filter.WidthRange[0] || value.Width > filter.WidthRange[1]) {
+			continue
+		}
+
+		if filter.WeightRange[0] != 0 && filter.WeightRange[1] != 0 &&
+			// is out of range
+			(value.Weight < filter.WeightRange[0] || value.Weight > filter.WeightRange[1]) {
+			continue
+		}
+
 		// if all filters passed, add to the map
 		v[key] = value
 	}

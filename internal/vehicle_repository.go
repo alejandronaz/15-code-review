@@ -15,6 +15,7 @@ type VehicleRepository interface {
 
 }
 
+// EqualFilter is a filter for query the repository
 type EqualFilter struct {
 	// Brand is the brand of the vehicle
 	Brand string
@@ -30,6 +31,15 @@ type EqualFilter struct {
 	FuelType string
 	// Transmission is the transmission of the vehicle
 	Transmission string
+
+	// FabricationYearRange is an array that contains a min and max value for FabricationYear
+	FabricationYearRange [2]int
+	// LengthRange is an array that contains a min and max value for Length
+	LengthRange [2]float64
+	// WidthRange is an array that contains a min and max value for Width
+	WidthRange [2]float64
+	// WeightRange is an array that contains a min and max value for Weight
+	WeightRange [2]float64
 }
 
 // errors definition
